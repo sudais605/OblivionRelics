@@ -1,14 +1,20 @@
 package me.oblivion.relics;
 
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandSender;
+import me.oblivion.relics.data.PlayerDataManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public final class OblivionRelics extends JavaPlugin {
 
+    private PlayerDataManager playerDataManager;
+
     @Override
     public void onEnable() {
+        saveDefaultConfig();
+
+        playerDataManager = new PlayerDataManager(this);
+
         getLogger().info("OblivionRelics has been enabled!");
+        getLogger().info("Player data system loaded.");
     }
 
     @Override
@@ -16,18 +22,7 @@ public final class OblivionRelics extends JavaPlugin {
         getLogger().info("OblivionRelics has been disabled!");
     }
 
-    @Override
-    public boolean onCommand(
-            CommandSender sender,
-            Command command,
-            String label,
-            String[] args
-    ) {
-        if (command.getName().equalsIgnoreCase("relictest")) {
-            sender.sendMessage("§bOblivionRelics §7test successful!");
-            return true;
-        }
-
-        return false;
+    public PlayerDataManager getPlayerDataManager() {
+        return playerDataManager;
     }
 }
