@@ -5,6 +5,8 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 public class PlayerDataManager {
@@ -18,9 +20,15 @@ public class PlayerDataManager {
         dataFolder = new File(plugin.getDataFolder(), "players");
 
         if (!dataFolder.exists() && !dataFolder.mkdirs()) {
-            plugin.getLogger().warning("Could not create player data folder!");
+            plugin.getLogger().warning(
+                    "Could not create player data folder!"
+            );
         }
     }
+
+    // =========================================
+    // PLAYER FILE
+    // =========================================
 
     private File getPlayerFile(UUID uuid) {
         return new File(dataFolder, uuid + ".yml");
@@ -49,6 +57,10 @@ public class PlayerDataManager {
         }
     }
 
+    // =========================================
+    // ENERGY
+    // =========================================
+
     public int getEnergy(UUID uuid) {
         YamlConfiguration config = loadPlayerFile(uuid);
         return config.getInt("energy", 3);
@@ -64,12 +76,24 @@ public class PlayerDataManager {
     }
 
     public void addEnergy(UUID uuid, int amount) {
+        if (amount <= 0) {
+            return;
+        }
+
         setEnergy(uuid, getEnergy(uuid) + amount);
     }
 
     public void removeEnergy(UUID uuid, int amount) {
+        if (amount <= 0) {
+            return;
+        }
+
         setEnergy(uuid, getEnergy(uuid) - amount);
     }
+
+    // =========================================
+    // RELIC
+    // =========================================
 
     public String getRelic(UUID uuid) {
         YamlConfiguration config = loadPlayerFile(uuid);
@@ -78,6 +102,7 @@ public class PlayerDataManager {
 
     public void setRelic(UUID uuid, String relic) {
         YamlConfiguration config = loadPlayerFile(uuid);
+
         config.set("relic", relic);
 
         savePlayerFile(uuid, config);
@@ -85,8 +110,87 @@ public class PlayerDataManager {
 
     public boolean hasRelic(UUID uuid) {
         String relic = getRelic(uuid);
+
         return relic != null && !relic.isBlank();
     }
+
+    // =========================================
+    // TRUST SYSTEM
+    // =========================================
+
+    public List<String> getTrustedPlayers(UUID uuid) {
+        YamlConfiguration config = loadPlayerFile(uuid);
+
+        return new ArrayList<>(
+                config.getStringList("trusted-players")
+        );
+    }
+
+    public boolean isTrusted(UUID uuid, UUID targetUuid) {
+
+        if (uuid.equals(targetUuid)) {
+            return true;
+        }
+
+        return getTrustedPlayers(uuid)
+                .contains(targetUuid.toString());
+    }
+
+    public boolean addTrustedPlayer(
+            UUID uuid,
+            UUID targetUuid
+    ) {
+        if (uuid.equals(targetUuid)) {
+            return false;
+        }
+
+        YamlConfiguration config = loadPlayerFile(uuid);
+
+        List<String> trusted = new ArrayList<>(
+                config.getStringList("trusted-players")
+        );
+
+        String target = targetUuid.toString();
+
+        if (trusted.contains(target)) {
+            return false;
+        }
+
+        trusted.add(target);
+
+        config.set("trusted-players", trusted);
+
+        savePlayerFile(uuid, config);
+
+        return true;
+    }
+
+    public boolean removeTrustedPlayer(
+            UUID uuid,
+            UUID targetUuid
+    ) {
+        YamlConfiguration config = loadPlayerFile(uuid);
+
+        List<String> trusted = new ArrayList<>(
+                config.getStringList("trusted-players")
+        );
+
+        String target = targetUuid.toString();
+
+        if (!trusted.remove(target)) {
+            return false;
+        }
+
+        config.set("trusted-players", trusted);
+
+        savePlayerFile(uuid, config);
+
+        return true;
+    }
+
+    // =========================================
+    // RESET
+    // =========================================
 
     public void resetPlayer(UUID uuid) {
         File file = getPlayerFile(uuid);
