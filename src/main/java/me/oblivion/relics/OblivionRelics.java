@@ -6,6 +6,7 @@ import me.oblivion.relics.data.PlayerDataManager;
 import me.oblivion.relics.energy.EchoFlask;
 import me.oblivion.relics.energy.EnergyManager;
 import me.oblivion.relics.listener.FlaskListener;
+import me.oblivion.relics.relic.RelicItem;
 import me.oblivion.relics.relic.RelicManager;
 import me.oblivion.relics.trust.TrustManager;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -16,12 +17,14 @@ public final class OblivionRelics extends JavaPlugin {
     private EnergyManager energyManager;
     private EchoFlask echoFlask;
     private TrustManager trustManager;
+    private RelicItem relicItem;
     private RelicManager relicManager;
 
     @Override
     public void onEnable() {
 
-        playerDataManager = new PlayerDataManager(this);
+        playerDataManager =
+                new PlayerDataManager(this);
 
         energyManager =
                 new EnergyManager(playerDataManager);
@@ -32,8 +35,14 @@ public final class OblivionRelics extends JavaPlugin {
         trustManager =
                 new TrustManager(playerDataManager);
 
+        relicItem =
+                new RelicItem(this);
+
         relicManager =
-                new RelicManager(playerDataManager);
+                new RelicManager(
+                        playerDataManager,
+                        relicItem
+                );
 
         getCommand("withdraw").setExecutor(
                 new WithdrawCommand(
@@ -100,6 +109,10 @@ public final class OblivionRelics extends JavaPlugin {
 
     public TrustManager getTrustManager() {
         return trustManager;
+    }
+
+    public RelicItem getRelicItem() {
+        return relicItem;
     }
 
     public RelicManager getRelicManager() {
