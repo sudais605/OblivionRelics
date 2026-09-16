@@ -10,6 +10,7 @@ import me.oblivion.relics.relic.RelicItem;
 import me.oblivion.relics.relic.RelicManager;
 import me.oblivion.relics.trust.TrustManager;
 import org.bukkit.plugin.java.JavaPlugin;
+import me.oblivion.relics.command.RelicGiveCommand;
 
 public final class OblivionRelics extends JavaPlugin {
 
@@ -51,7 +52,13 @@ public final class OblivionRelics extends JavaPlugin {
 
         getCommand("trust").setExecutor(
                 new TrustCommand(
-                        trustManager
+                        trustManager            
+                )
+        );
+
+        getCommand("relicgive").setExecutor(
+                new RelicGiveCommand(
+                            relicManager
                 )
         );
 
