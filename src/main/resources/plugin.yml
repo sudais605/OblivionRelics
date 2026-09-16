@@ -22,3 +22,7 @@ commands:
   trust:
     description: Manage trusted players
     usage: /trust <add|remove|list> [player]
+
+  relicgive:
+    description: Gives a specific Relic to a player
+    usage: /relicgive <player> <relic>
