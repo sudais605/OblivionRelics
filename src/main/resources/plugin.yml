@@ -7,6 +7,10 @@ author: Oblivion
 description: Custom Relic System for Oblivion SMP
 
 commands:
+  relictest:
+    description: Tests the OblivionRelics plugin
+    usage: /relictest
+
   relicinfo:
     description: Opens the Relic information menu
     usage: /relicinfo
