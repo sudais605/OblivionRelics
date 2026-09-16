@@ -6,6 +6,7 @@ import me.oblivion.relics.data.PlayerDataManager;
 import me.oblivion.relics.energy.EchoFlask;
 import me.oblivion.relics.energy.EnergyManager;
 import me.oblivion.relics.listener.FlaskListener;
+import me.oblivion.relics.relic.RelicManager;
 import me.oblivion.relics.trust.TrustManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -15,17 +16,30 @@ public final class OblivionRelics extends JavaPlugin {
     private EnergyManager energyManager;
     private EchoFlask echoFlask;
     private TrustManager trustManager;
+    private RelicManager relicManager;
 
     @Override
     public void onEnable() {
 
         playerDataManager = new PlayerDataManager(this);
-        energyManager = new EnergyManager(playerDataManager);
-        echoFlask = new EchoFlask(this);
-        trustManager = new TrustManager(playerDataManager);
+
+        energyManager =
+                new EnergyManager(playerDataManager);
+
+        echoFlask =
+                new EchoFlask(this);
+
+        trustManager =
+                new TrustManager(playerDataManager);
+
+        relicManager =
+                new RelicManager(playerDataManager);
 
         getCommand("withdraw").setExecutor(
-                new WithdrawCommand(energyManager, echoFlask)
+                new WithdrawCommand(
+                        energyManager,
+                        echoFlask
+                )
         );
 
         getCommand("trust").setExecutor(
@@ -33,20 +47,43 @@ public final class OblivionRelics extends JavaPlugin {
         );
 
         getServer().getPluginManager().registerEvents(
-                new FlaskListener(echoFlask, energyManager),
+                new FlaskListener(
+                        echoFlask,
+                        energyManager
+                ),
                 this
         );
 
-        getLogger().info("OblivionRelics has been enabled!");
-        getLogger().info("Player data system loaded.");
-        getLogger().info("Energy system loaded.");
-        getLogger().info("Echo Flask system loaded.");
-        getLogger().info("Trust system loaded.");
+        getLogger().info(
+                "OblivionRelics has been enabled!"
+        );
+
+        getLogger().info(
+                "Player data system loaded."
+        );
+
+        getLogger().info(
+                "Energy system loaded."
+        );
+
+        getLogger().info(
+                "Echo Flask system loaded."
+        );
+
+        getLogger().info(
+                "Trust system loaded."
+        );
+
+        getLogger().info(
+                "Relic system loaded."
+        );
     }
 
     @Override
     public void onDisable() {
-        getLogger().info("OblivionRelics has been disabled!");
+        getLogger().info(
+                "OblivionRelics has been disabled!"
+        );
     }
 
     public PlayerDataManager getPlayerDataManager() {
@@ -63,5 +100,9 @@ public final class OblivionRelics extends JavaPlugin {
 
     public TrustManager getTrustManager() {
         return trustManager;
+    }
+
+    public RelicManager getRelicManager() {
+        return relicManager;
     }
 }
