@@ -29,7 +29,7 @@ public class RelicItem {
         }
 
         meta.setDisplayName(
-                ChatColor.AQUA + ChatColor.BOLD
+                ChatColor.AQUA + "" + ChatColor.BOLD
                         + relicType.getDisplayName()
         );
 
@@ -37,21 +37,39 @@ public class RelicItem {
 
         lore.add(ChatColor.GRAY + "Abilities");
         lore.add("");
-        lore.add(ChatColor.WHITE + "F " + ChatColor.DARK_GRAY + "— "
-                + ChatColor.AQUA + getAbilityOneName(relicType));
 
-        lore.add(ChatColor.WHITE + "SHIFT + F " + ChatColor.DARK_GRAY + "— "
-                + ChatColor.AQUA + getAbilityTwoName(relicType));
+        lore.add(
+                ChatColor.WHITE + "F "
+                        + ChatColor.DARK_GRAY + "— "
+                        + ChatColor.AQUA
+                        + getAbilityOneName(relicType)
+        );
 
-        lore.add(ChatColor.WHITE + "CTRL + F " + ChatColor.DARK_GRAY + "— "
-                + ChatColor.AQUA + getAbilityThreeName(relicType));
+        lore.add(
+                ChatColor.WHITE + "SHIFT + F "
+                        + ChatColor.DARK_GRAY + "— "
+                        + ChatColor.AQUA
+                        + getAbilityTwoName(relicType)
+        );
+
+        lore.add(
+                ChatColor.WHITE + "CTRL + F "
+                        + ChatColor.DARK_GRAY + "— "
+                        + ChatColor.AQUA
+                        + getAbilityThreeName(relicType)
+        );
 
         lore.add("");
-        lore.add(ChatColor.GRAY + "Ability II unlocks at "
-                + ChatColor.AQUA + "8 Energy");
 
-        lore.add(ChatColor.GRAY + "Ability III unlocks at "
-                + ChatColor.AQUA + "10 Energy");
+        lore.add(
+                ChatColor.GRAY + "Ability II unlocks at "
+                        + ChatColor.AQUA + "8 Energy"
+        );
+
+        lore.add(
+                ChatColor.GRAY + "Ability III unlocks at "
+                        + ChatColor.AQUA + "10 Energy"
+        );
 
         meta.setLore(lore);
 
@@ -68,7 +86,8 @@ public class RelicItem {
 
     public boolean isRelic(ItemStack item) {
 
-        if (item == null || item.getType() != Material.ECHO_SHARD) {
+        if (item == null
+                || item.getType() != Material.ECHO_SHARD) {
             return false;
         }
 
@@ -113,6 +132,7 @@ public class RelicItem {
     }
 
     private String getAbilityOneName(RelicType relic) {
+
         return switch (relic) {
             case RIFT -> "Rift Pull";
             case GRAVITY -> "Gravity Pull";
@@ -133,6 +153,7 @@ public class RelicItem {
     }
 
     private String getAbilityTwoName(RelicType relic) {
+
         return switch (relic) {
             case RIFT -> "Rift Dash";
             case GRAVITY -> "Gravity Shift";
@@ -153,6 +174,7 @@ public class RelicItem {
     }
 
     private String getAbilityThreeName(RelicType relic) {
+
         return switch (relic) {
             case RIFT -> "Rift Break";
             case GRAVITY -> "Gravity Crush";
