@@ -1,10 +1,12 @@
 package me.oblivion.relics;
 
+import me.oblivion.relics.command.TrustCommand;
 import me.oblivion.relics.command.WithdrawCommand;
 import me.oblivion.relics.data.PlayerDataManager;
 import me.oblivion.relics.energy.EchoFlask;
 import me.oblivion.relics.energy.EnergyManager;
 import me.oblivion.relics.listener.FlaskListener;
+import me.oblivion.relics.trust.TrustManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public final class OblivionRelics extends JavaPlugin {
@@ -12,6 +14,7 @@ public final class OblivionRelics extends JavaPlugin {
     private PlayerDataManager playerDataManager;
     private EnergyManager energyManager;
     private EchoFlask echoFlask;
+    private TrustManager trustManager;
 
     @Override
     public void onEnable() {
@@ -19,9 +22,14 @@ public final class OblivionRelics extends JavaPlugin {
         playerDataManager = new PlayerDataManager(this);
         energyManager = new EnergyManager(playerDataManager);
         echoFlask = new EchoFlask(this);
+        trustManager = new TrustManager(playerDataManager);
 
         getCommand("withdraw").setExecutor(
                 new WithdrawCommand(energyManager, echoFlask)
+        );
+
+        getCommand("trust").setExecutor(
+                new TrustCommand(trustManager)
         );
 
         getServer().getPluginManager().registerEvents(
@@ -33,6 +41,7 @@ public final class OblivionRelics extends JavaPlugin {
         getLogger().info("Player data system loaded.");
         getLogger().info("Energy system loaded.");
         getLogger().info("Echo Flask system loaded.");
+        getLogger().info("Trust system loaded.");
     }
 
     @Override
@@ -50,5 +59,9 @@ public final class OblivionRelics extends JavaPlugin {
 
     public EchoFlask getEchoFlask() {
         return echoFlask;
+    }
+
+    public TrustManager getTrustManager() {
+        return trustManager;
     }
 }
