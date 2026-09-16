@@ -16,8 +16,6 @@ public final class OblivionRelics extends JavaPlugin {
     @Override
     public void onEnable() {
 
-        saveDefaultConfig();
-
         playerDataManager = new PlayerDataManager(this);
         energyManager = new EnergyManager(playerDataManager);
         echoFlask = new EchoFlask(this);
