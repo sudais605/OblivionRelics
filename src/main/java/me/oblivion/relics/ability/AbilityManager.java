@@ -14,7 +14,14 @@ public class AbilityManager {
     private final RelicManager relicManager;
     private final TrustManager trustManager;
 
-    private final Map<UUID, Long> cooldowns = new HashMap<>();
+    /*
+     * Key format:
+     * player-uuid:ability-name
+     *
+     * Example:
+     * 550e8400-e29b-41d4-a716-446655440000:RIFT_PULL
+     */
+    private final Map<String, Long> cooldowns = new HashMap<>();
 
     public AbilityManager(
             RelicManager relicManager,
@@ -24,7 +31,10 @@ public class AbilityManager {
         this.trustManager = trustManager;
     }
 
-    public boolean isTrusted(Player owner, Player target) {
+    public boolean isTrusted(
+            Player owner,
+            Player target
+    ) {
         return trustManager.isTrusted(
                 owner.getUniqueId(),
                 target.getUniqueId()
@@ -37,20 +47,32 @@ public class AbilityManager {
         );
     }
 
+    private String createCooldownKey(
+            Player player,
+            String ability
+    ) {
+        return player.getUniqueId()
+                .toString()
+                + ":"
+                + ability.toUpperCase();
+    }
+
     public boolean isOnCooldown(
             Player player,
             String ability
     ) {
-        String key =
-                player.getUniqueId() + ":" + ability;
+        String key = createCooldownKey(
+                player,
+                ability
+        );
 
-        Long end = cooldowns.get(key);
+        Long endTime = cooldowns.get(key);
 
-        if (end == null) {
+        if (endTime == null) {
             return false;
         }
 
-        if (System.currentTimeMillis() >= end) {
+        if (System.currentTimeMillis() >= endTime) {
             cooldowns.remove(key);
             return false;
         }
@@ -62,19 +84,26 @@ public class AbilityManager {
             Player player,
             String ability
     ) {
-        String key =
-                player.getUniqueId() + ":" + ability;
+        String key = createCooldownKey(
+                player,
+                ability
+        );
 
-        Long end = cooldowns.get(key);
+        Long endTime = cooldowns.get(key);
 
-        if (end == null) {
-            return 0;
+        if (endTime == null) {
+            return 0L;
         }
 
         long remaining =
-                end - System.currentTimeMillis();
+                endTime - System.currentTimeMillis();
 
-        return Math.max(0, remaining);
+        if (remaining <= 0) {
+            cooldowns.remove(key);
+            return 0L;
+        }
+
+        return remaining;
     }
 
     public void startCooldown(
@@ -82,18 +111,39 @@ public class AbilityManager {
             String ability,
             long milliseconds
     ) {
-        String key =
-                player.getUniqueId() + ":" + ability;
+        if (milliseconds <= 0) {
+            return;
+        }
+
+        String key = createCooldownKey(
+                player,
+                ability
+        );
 
         cooldowns.put(
                 key,
-                System.currentTimeMillis() + milliseconds
+                System.currentTimeMillis()
+                        + milliseconds
         );
     }
 
     public void clearCooldowns(UUID uuid) {
+        String prefix = uuid.toString() + ":";
+
         cooldowns.keySet().removeIf(
-                key -> key.startsWith(uuid.toString())
+                key -> key.startsWith(prefix)
         );
+    }
+
+    public void clearCooldown(
+            Player player,
+            String ability
+    ) {
+        String key = createCooldownKey(
+                player,
+                ability
+        );
+
+        cooldowns.remove(key);
     }
 }
