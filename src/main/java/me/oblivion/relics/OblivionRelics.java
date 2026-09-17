@@ -1,16 +1,19 @@
 package me.oblivion.relics;
 
+import me.oblivion.relics.ability.AbilityManager;
+import me.oblivion.relics.ability.RiftAbilities;
+import me.oblivion.relics.command.RelicGiveCommand;
 import me.oblivion.relics.command.TrustCommand;
 import me.oblivion.relics.command.WithdrawCommand;
 import me.oblivion.relics.data.PlayerDataManager;
 import me.oblivion.relics.energy.EchoFlask;
 import me.oblivion.relics.energy.EnergyManager;
+import me.oblivion.relics.listener.AbilityListener;
 import me.oblivion.relics.listener.FlaskListener;
 import me.oblivion.relics.relic.RelicItem;
 import me.oblivion.relics.relic.RelicManager;
 import me.oblivion.relics.trust.TrustManager;
 import org.bukkit.plugin.java.JavaPlugin;
-import me.oblivion.relics.command.RelicGiveCommand;
 
 public final class OblivionRelics extends JavaPlugin {
 
@@ -20,6 +23,8 @@ public final class OblivionRelics extends JavaPlugin {
     private TrustManager trustManager;
     private RelicItem relicItem;
     private RelicManager relicManager;
+    private AbilityManager abilityManager;
+    private RiftAbilities riftAbilities;
 
     @Override
     public void onEnable() {
@@ -43,6 +48,15 @@ public final class OblivionRelics extends JavaPlugin {
                 relicItem
         );
 
+        abilityManager = new AbilityManager(
+                relicManager,
+                trustManager
+        );
+
+        riftAbilities = new RiftAbilities(
+                abilityManager
+        );
+
         getCommand("withdraw").setExecutor(
                 new WithdrawCommand(
                         energyManager,
@@ -52,13 +66,13 @@ public final class OblivionRelics extends JavaPlugin {
 
         getCommand("trust").setExecutor(
                 new TrustCommand(
-                        trustManager            
+                        trustManager
                 )
         );
 
         getCommand("relicgive").setExecutor(
                 new RelicGiveCommand(
-                            relicManager
+                        relicManager
                 )
         );
 
@@ -66,6 +80,13 @@ public final class OblivionRelics extends JavaPlugin {
                 new FlaskListener(
                         echoFlask,
                         energyManager
+                ),
+                this
+        );
+
+        getServer().getPluginManager().registerEvents(
+                new AbilityListener(
+                        riftAbilities
                 ),
                 this
         );
@@ -92,6 +113,10 @@ public final class OblivionRelics extends JavaPlugin {
 
         getLogger().info(
                 "Relic system loaded."
+        );
+
+        getLogger().info(
+                "Ability system loaded."
         );
     }
 
@@ -124,5 +149,13 @@ public final class OblivionRelics extends JavaPlugin {
 
     public RelicManager getRelicManager() {
         return relicManager;
+    }
+
+    public AbilityManager getAbilityManager() {
+        return abilityManager;
+    }
+
+    public RiftAbilities getRiftAbilities() {
+        return riftAbilities;
     }
 }
