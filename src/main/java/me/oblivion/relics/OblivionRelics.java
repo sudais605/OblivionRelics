@@ -1,5 +1,6 @@
 package me.oblivion.relics;
 
+import me.oblivion.relics.ability.AbilityActionBar;
 import me.oblivion.relics.ability.AbilityManager;
 import me.oblivion.relics.ability.RiftAbilities;
 import me.oblivion.relics.command.RelicGiveCommand;
@@ -25,37 +26,49 @@ public final class OblivionRelics extends JavaPlugin {
     private RelicManager relicManager;
     private AbilityManager abilityManager;
     private RiftAbilities riftAbilities;
+    private AbilityActionBar abilityActionBar;
 
     @Override
     public void onEnable() {
 
-        playerDataManager = new PlayerDataManager(this);
+        playerDataManager =
+                new PlayerDataManager(this);
 
-        energyManager = new EnergyManager(
-                playerDataManager
-        );
+        energyManager =
+                new EnergyManager(playerDataManager);
 
-        echoFlask = new EchoFlask(this);
+        echoFlask =
+                new EchoFlask(this);
 
-        trustManager = new TrustManager(
-                playerDataManager
-        );
+        trustManager =
+                new TrustManager(playerDataManager);
 
-        relicItem = new RelicItem(this);
+        relicItem =
+                new RelicItem(this);
 
-        relicManager = new RelicManager(
-                playerDataManager,
-                relicItem
-        );
+        relicManager =
+                new RelicManager(
+                        playerDataManager,
+                        relicItem
+                );
 
-        abilityManager = new AbilityManager(
-                relicManager,
-                trustManager
-        );
+        abilityManager =
+                new AbilityManager(
+                        relicManager,
+                        trustManager
+                );
 
-        riftAbilities = new RiftAbilities(
-                abilityManager
-        );
+        riftAbilities =
+                new RiftAbilities(
+                        abilityManager
+                );
+
+        abilityActionBar =
+                new AbilityActionBar(
+                        this,
+                        relicManager,
+                        abilityManager
+                );
 
         getCommand("withdraw").setExecutor(
                 new WithdrawCommand(
@@ -91,6 +104,8 @@ public final class OblivionRelics extends JavaPlugin {
                 this
         );
 
+        abilityActionBar.start();
+
         getLogger().info(
                 "OblivionRelics has been enabled!"
         );
@@ -118,10 +133,19 @@ public final class OblivionRelics extends JavaPlugin {
         getLogger().info(
                 "Ability system loaded."
         );
+
+        getLogger().info(
+                "Ability action bar loaded."
+        );
     }
 
     @Override
     public void onDisable() {
+
+        if (abilityActionBar != null) {
+            abilityActionBar.stop();
+        }
+
         getLogger().info(
                 "OblivionRelics has been disabled!"
         );
@@ -157,5 +181,9 @@ public final class OblivionRelics extends JavaPlugin {
 
     public RiftAbilities getRiftAbilities() {
         return riftAbilities;
+    }
+
+    public AbilityActionBar getAbilityActionBar() {
+        return abilityActionBar;
     }
 }
