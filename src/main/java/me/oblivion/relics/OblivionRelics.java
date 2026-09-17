@@ -1,7 +1,7 @@
 package me.oblivion.relics;
 
-import me.oblivion.relics.ability.AbilityActionBar;
 import me.oblivion.relics.ability.AbilityManager;
+import me.oblivion.relics.ability.RelicAbilityEngine;
 import me.oblivion.relics.ability.RiftAbilities;
 import me.oblivion.relics.command.RelicGiveCommand;
 import me.oblivion.relics.command.TrustCommand;
@@ -11,6 +11,7 @@ import me.oblivion.relics.energy.EchoFlask;
 import me.oblivion.relics.energy.EnergyManager;
 import me.oblivion.relics.listener.AbilityListener;
 import me.oblivion.relics.listener.FlaskListener;
+import me.oblivion.relics.listener.UniversalAbilityListener;
 import me.oblivion.relics.relic.RelicItem;
 import me.oblivion.relics.relic.RelicManager;
 import me.oblivion.relics.trust.TrustManager;
@@ -24,24 +25,37 @@ public final class OblivionRelics extends JavaPlugin {
     private TrustManager trustManager;
     private RelicItem relicItem;
     private RelicManager relicManager;
+
     private AbilityManager abilityManager;
     private RiftAbilities riftAbilities;
-    private AbilityActionBar abilityActionBar;
+    private RelicAbilityEngine relicAbilityEngine;
 
     @Override
     public void onEnable() {
+
+        // ==============================
+        // CORE SYSTEMS
+        // ==============================
 
         playerDataManager =
                 new PlayerDataManager(this);
 
         energyManager =
-                new EnergyManager(playerDataManager);
+                new EnergyManager(
+                        playerDataManager
+                );
 
         echoFlask =
                 new EchoFlask(this);
 
         trustManager =
-                new TrustManager(playerDataManager);
+                new TrustManager(
+                        playerDataManager
+                );
+
+        // ==============================
+        // RELIC SYSTEM
+        // ==============================
 
         relicItem =
                 new RelicItem(this);
@@ -51,6 +65,10 @@ public final class OblivionRelics extends JavaPlugin {
                         playerDataManager,
                         relicItem
                 );
+
+        // ==============================
+        // ABILITY SYSTEM
+        // ==============================
 
         abilityManager =
                 new AbilityManager(
@@ -63,31 +81,46 @@ public final class OblivionRelics extends JavaPlugin {
                         abilityManager
                 );
 
-        abilityActionBar =
-                new AbilityActionBar(
+        relicAbilityEngine =
+                new RelicAbilityEngine(
                         this,
                         relicManager,
-                        abilityManager
+                        energyManager,
+                        trustManager
                 );
 
-        getCommand("withdraw").setExecutor(
-                new WithdrawCommand(
-                        energyManager,
-                        echoFlask
-                )
-        );
+        // ==============================
+        // COMMANDS
+        // ==============================
 
-        getCommand("trust").setExecutor(
-                new TrustCommand(
-                        trustManager
-                )
-        );
+        if (getCommand("withdraw") != null) {
+            getCommand("withdraw").setExecutor(
+                    new WithdrawCommand(
+                            energyManager,
+                            echoFlask
+                    )
+            );
+        }
 
-        getCommand("relicgive").setExecutor(
-                new RelicGiveCommand(
-                        relicManager
-                )
-        );
+        if (getCommand("trust") != null) {
+            getCommand("trust").setExecutor(
+                    new TrustCommand(
+                            trustManager
+                    )
+            );
+        }
+
+        if (getCommand("relicgive") != null) {
+            getCommand("relicgive").setExecutor(
+                    new RelicGiveCommand(
+                            relicManager
+                    )
+            );
+        }
+
+        // ==============================
+        // EVENT LISTENERS
+        // ==============================
 
         getServer().getPluginManager().registerEvents(
                 new FlaskListener(
@@ -97,6 +130,11 @@ public final class OblivionRelics extends JavaPlugin {
                 this
         );
 
+        /*
+         * Old Rift listener is still registered for now.
+         * We will remove it later after the universal
+         * ability system is fully tested.
+         */
         getServer().getPluginManager().registerEvents(
                 new AbilityListener(
                         riftAbilities
@@ -104,7 +142,26 @@ public final class OblivionRelics extends JavaPlugin {
                 this
         );
 
-        abilityActionBar.start();
+        /*
+         * Universal ability system:
+         * F = Ability I
+         * SHIFT + F = Ability II
+         * Double F = Ability III
+         */
+        getServer().getPluginManager().registerEvents(
+                new UniversalAbilityListener(
+                        relicAbilityEngine
+                ),
+                this
+        );
+
+        // ==============================
+        // LOGGING
+        // ==============================
+
+        getLogger().info(
+                "================================"
+        );
 
         getLogger().info(
                 "OblivionRelics has been enabled!"
@@ -131,25 +188,29 @@ public final class OblivionRelics extends JavaPlugin {
         );
 
         getLogger().info(
-                "Ability system loaded."
+                "Ability Manager loaded."
         );
 
         getLogger().info(
-                "Ability action bar loaded."
+                "Relic Ability Engine loaded."
+        );
+
+        getLogger().info(
+                "================================"
         );
     }
 
     @Override
     public void onDisable() {
 
-        if (abilityActionBar != null) {
-            abilityActionBar.stop();
-        }
-
         getLogger().info(
                 "OblivionRelics has been disabled!"
         );
     }
+
+    // ==============================
+    // GETTERS
+    // ==============================
 
     public PlayerDataManager getPlayerDataManager() {
         return playerDataManager;
@@ -183,7 +244,7 @@ public final class OblivionRelics extends JavaPlugin {
         return riftAbilities;
     }
 
-    public AbilityActionBar getAbilityActionBar() {
-        return abilityActionBar;
+    public RelicAbilityEngine getRelicAbilityEngine() {
+        return relicAbilityEngine;
     }
 }
