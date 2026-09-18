@@ -34,3 +34,7 @@ commands:
   relicinfo:
     description: Opens the Oblivion Relics information menu
     usage: /relicinfo
+
+  relicreroll:
+    description: Gives a Relic Reroller
+    usage: /relicreroll <player>
