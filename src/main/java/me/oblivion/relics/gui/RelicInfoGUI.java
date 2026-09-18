@@ -22,7 +22,8 @@ import java.util.List;
 
 public class RelicInfoGUI implements org.bukkit.command.CommandExecutor, Listener {
 
-    private static final String TITLE = ChatColor.DARK_AQUA + "Oblivion Relics";
+    private static final String TITLE =
+            ChatColor.DARK_AQUA + "Oblivion Relics";
 
     private final RelicManager relicManager;
     private final RelicAbilityEngine abilityEngine;
@@ -47,7 +48,9 @@ public class RelicInfoGUI implements org.bukkit.command.CommandExecutor, Listene
     ) {
 
         if (!(sender instanceof Player player)) {
-            sender.sendMessage(ChatColor.RED + "Only players can use this command.");
+            sender.sendMessage(
+                    ChatColor.RED + "Only players can use this command."
+            );
             return true;
         }
 
@@ -63,8 +66,11 @@ public class RelicInfoGUI implements org.bukkit.command.CommandExecutor, Listene
                 TITLE
         );
 
-        RelicType currentRelic = relicManager.getRelic(player.getUniqueId());
-        int energy = energyManager.getEnergy(player.getUniqueId());
+        RelicType currentRelic =
+                relicManager.getRelic(player.getUniqueId());
+
+        int energy =
+                energyManager.getEnergy(player.getUniqueId());
 
         RelicType[] relics = RelicType.values();
 
@@ -72,51 +78,86 @@ public class RelicInfoGUI implements org.bukkit.command.CommandExecutor, Listene
 
             RelicType relic = relics[i];
 
-            ItemStack item = new ItemStack(getMaterial(relic));
-            ItemMeta meta = item.getItemMeta();
+            ItemStack item =
+                    new ItemStack(getMaterial(relic));
+
+            ItemMeta meta =
+                    item.getItemMeta();
 
             if (meta == null) {
                 continue;
             }
 
-            boolean current = relic == currentRelic;
+            boolean current =
+                    relic == currentRelic;
 
             meta.setDisplayName(
-                    (current ? ChatColor.GREEN : ChatColor.AQUA)
+                    (current
+                            ? ChatColor.GREEN
+                            : ChatColor.AQUA)
                             + ChatColor.BOLD
                             + relic.getDisplayName()
             );
 
-            List<String> lore = new ArrayList<>();
+            List<String> lore =
+                    new ArrayList<>();
 
-            lore.add(ChatColor.DARK_GRAY + "━━━━━━━━━━━━━━━━━━━━");
-            lore.add(ChatColor.GRAY + relic.getDescription());
+            lore.add(
+                    ChatColor.DARK_GRAY
+                            + "━━━━━━━━━━━━━━━━━━"
+            );
+
+            lore.add(
+                    ChatColor.GRAY
+                            + relic.getDescription()
+            );
+
             lore.add("");
-            lore.add(ChatColor.WHITE + "Abilities:");
+
             lore.add(
-                    ChatColor.AQUA + "F "
-                            + ChatColor.WHITE
-                            + abilityEngine.getAbilityName(relic, 1)
-                            + ChatColor.GRAY
-                            + " • READY"
+                    ChatColor.WHITE
+                            + "Abilities"
             );
+
             lore.add(
-                    ChatColor.AQUA + "SHIFT+F "
+                    ChatColor.AQUA
+                            + "F "
                             + ChatColor.WHITE
-                            + abilityEngine.getAbilityName(relic, 2)
-                            + ChatColor.GRAY
-                            + " • 8 Energy"
+                            + abilityEngine.getAbilityName(
+                                    relic,
+                                    1
+                            )
             );
+
             lore.add(
-                    ChatColor.AQUA + "DOUBLE F "
+                    ChatColor.AQUA
+                            + "Shift + F "
                             + ChatColor.WHITE
-                            + abilityEngine.getAbilityName(relic, 3)
+                            + abilityEngine.getAbilityName(
+                                    relic,
+                                    2
+                            )
                             + ChatColor.GRAY
-                            + " • 10 Energy"
+                            + "  •  8 Energy"
             );
+
+            lore.add(
+                    ChatColor.AQUA
+                            + "Double F "
+                            + ChatColor.WHITE
+                            + abilityEngine.getAbilityName(
+                                    relic,
+                                    3
+                            )
+                            + ChatColor.GRAY
+                            + "  •  10 Energy"
+            );
+
             lore.add("");
+
             lore.add(
-                    ChatColor.GRAY + "Your Energy: "
+                    ChatColor.GRAY
+                            + "Your Energy: "
                             + ChatColor.AQUA
                             + energy
                             + ChatColor.GRAY
@@ -125,57 +166,126 @@ public class RelicInfoGUI implements org.bukkit.command.CommandExecutor, Listene
 
             if (current) {
                 lore.add("");
-                lore.add(ChatColor.GREEN + "✔ Your current Relic");
+                lore.add(
+                        ChatColor.GREEN
+                                + "✔ Your current Relic"
+                );
             }
 
-            lore.add(ChatColor.DARK_GRAY + "━━━━━━━━━━━━━━━━━━━━");
+            lore.add(
+                    ChatColor.DARK_GRAY
+                            + "━━━━━━━━━━━━━━━━━━"
+            );
 
             meta.setLore(lore);
-            meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
+
+            meta.addItemFlags(
+                    ItemFlag.HIDE_ATTRIBUTES
+            );
 
             item.setItemMeta(meta);
 
-            inventory.setItem(getSlot(i), item);
+            inventory.setItem(
+                    getSlot(i),
+                    item
+            );
         }
 
-        ItemStack info = new ItemStack(Material.NETHER_STAR);
-        ItemMeta infoMeta = info.getItemMeta();
+        // ==============================
+        //          INFO ITEM
+        // ==============================
+
+        ItemStack info =
+                new ItemStack(Material.NETHER_STAR);
+
+        ItemMeta infoMeta =
+                info.getItemMeta();
 
         if (infoMeta != null) {
+
             infoMeta.setDisplayName(
                     ChatColor.LIGHT_PURPLE
                             + ChatColor.BOLD
                             + "Energy & Controls"
             );
 
-            List<String> infoLore = new ArrayList<>();
+            List<String> lore =
+                    new ArrayList<>();
 
-            infoLore.add("");
-            infoLore.add(ChatColor.GRAY + "Energy:");
-            infoLore.add(ChatColor.AQUA + "3 " + ChatColor.GRAY + "starting Energy");
-            infoLore.add(ChatColor.AQUA + "8 " + ChatColor.GRAY + "unlocks Ability II");
-            infoLore.add(ChatColor.AQUA + "10 " + ChatColor.GRAY + "unlocks Ability III");
-            infoLore.add("");
-            infoLore.add(ChatColor.GRAY + "Controls:");
-            infoLore.add(ChatColor.WHITE + "F " + ChatColor.GRAY + "→ Ability I");
-            infoLore.add(ChatColor.WHITE + "SHIFT+F " + ChatColor.GRAY + "→ Ability II");
-            infoLore.add(ChatColor.WHITE + "DOUBLE F " + ChatColor.GRAY + "→ Ability III");
-            infoLore.add("");
-            infoLore.add(
+            lore.add("");
+
+            lore.add(
+                    ChatColor.GRAY + "Energy System"
+            );
+
+            lore.add(
+                    ChatColor.AQUA
+                            + "3 "
+                            + ChatColor.GRAY
+                            + "Starting Energy"
+            );
+
+            lore.add(
+                    ChatColor.AQUA
+                            + "8 "
+                            + ChatColor.GRAY
+                            + "Unlocks Ability II"
+            );
+
+            lore.add(
+                    ChatColor.AQUA
+                            + "10 "
+                            + ChatColor.GRAY
+                            + "Unlocks Ability III"
+            );
+
+            lore.add("");
+
+            lore.add(
+                    ChatColor.GRAY + "Controls"
+            );
+
+            lore.add(
+                    ChatColor.WHITE
+                            + "F "
+                            + ChatColor.GRAY
+                            + "→ Ability I"
+            );
+
+            lore.add(
+                    ChatColor.WHITE
+                            + "Shift + F "
+                            + ChatColor.GRAY
+                            + "→ Ability II"
+            );
+
+            lore.add(
+                    ChatColor.WHITE
+                            + "Double F "
+                            + ChatColor.GRAY
+                            + "→ Ability III"
+            );
+
+            lore.add("");
+
+            lore.add(
                     ChatColor.GRAY
                             + "Use "
                             + ChatColor.AQUA
                             + "/withdraw"
                             + ChatColor.GRAY
-                            + " to withdraw Energy."
+                            + " to create an Echo Flask."
             );
-            infoLore.add("");
 
-            infoMeta.setLore(infoLore);
+            infoMeta.setLore(lore);
+
             info.setItemMeta(infoMeta);
         }
 
-        inventory.setItem(49, info);
+        inventory.setItem(
+                49,
+                info
+        );
 
         player.openInventory(inventory);
     }
@@ -184,8 +294,10 @@ public class RelicInfoGUI implements org.bukkit.command.CommandExecutor, Listene
 
         int[] slots = {
                 10, 11, 12, 13, 14,
-                15, 16, 19, 20, 21,
-                22, 23, 24, 25, 28
+                15, 16,
+                19, 20, 21, 22, 23,
+                24, 25,
+                28
         };
 
         return slots[index];
@@ -194,28 +306,62 @@ public class RelicInfoGUI implements org.bukkit.command.CommandExecutor, Listene
     private Material getMaterial(RelicType relic) {
 
         return switch (relic) {
-            case RIFT -> Material.ECHO_SHARD;
-            case GRAVITY -> Material.HEAVY_CORE;
-            case VOID -> Material.ENDER_PEARL;
-            case STORM -> Material.LIGHTNING_ROD;
-            case FROST -> Material.POWDER_SNOW_BUCKET;
-            case INFERNO -> Material.BLAZE_POWDER;
-            case SHADOW -> Material.INK_SAC;
-            case TIME -> Material.CLOCK;
-            case PHANTOM -> Material.PHANTOM_MEMBRANE;
-            case SOUL -> Material.SOUL_LANTERN;
-            case CHAOS -> Material.AMETHYST_SHARD;
-            case CELESTIAL -> Material.NETHER_STAR;
-            case AEGIS -> Material.SHIELD;
-            case FORCE -> Material.PISTON;
-            case ARCANE -> Material.ENCHANTED_BOOK;
+
+            case RIFT ->
+                    Material.ECHO_SHARD;
+
+            case GRAVITY ->
+                    Material.HEAVY_CORE;
+
+            case VOID ->
+                    Material.ENDER_PEARL;
+
+            case STORM ->
+                    Material.LIGHTNING_ROD;
+
+            case FROST ->
+                    Material.POWDER_SNOW_BUCKET;
+
+            case INFERNO ->
+                    Material.BLAZE_POWDER;
+
+            case SHADOW ->
+                    Material.INK_SAC;
+
+            case TIME ->
+                    Material.CLOCK;
+
+            case PHANTOM ->
+                    Material.PHANTOM_MEMBRANE;
+
+            case SOUL ->
+                    Material.SOUL_LANTERN;
+
+            case CHAOS ->
+                    Material.AMETHYST_SHARD;
+
+            case CELESTIAL ->
+                    Material.NETHER_STAR;
+
+            case AEGIS ->
+                    Material.SHIELD;
+
+            case FORCE ->
+                    Material.PISTON;
+
+            case ARCANE ->
+                    Material.ENCHANTED_BOOK;
         };
     }
 
     @EventHandler
-    public void onInventoryClick(InventoryClickEvent event) {
+    public void onInventoryClick(
+            InventoryClickEvent event
+    ) {
 
-        if (!event.getView().getTitle().equals(TITLE)) {
+        if (!event.getView()
+                .getTitle()
+                .equals(TITLE)) {
             return;
         }
 
@@ -223,9 +369,13 @@ public class RelicInfoGUI implements org.bukkit.command.CommandExecutor, Listene
     }
 
     @EventHandler
-    public void onInventoryDrag(InventoryDragEvent event) {
+    public void onInventoryDrag(
+            InventoryDragEvent event
+    ) {
 
-        if (!event.getView().getTitle().equals(TITLE)) {
+        if (!event.getView()
+                .getTitle()
+                .equals(TITLE)) {
             return;
         }
 
