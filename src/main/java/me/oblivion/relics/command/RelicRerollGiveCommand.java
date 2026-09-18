@@ -8,11 +8,14 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-public class RelicRerollGiveCommand implements CommandExecutor {
+public class RelicRerollGiveCommand
+        implements CommandExecutor {
 
     private final RerollerItem rerollerItem;
 
-    public RelicRerollGiveCommand(RerollerItem rerollerItem) {
+    public RelicRerollGiveCommand(
+            RerollerItem rerollerItem
+    ) {
         this.rerollerItem = rerollerItem;
     }
 
@@ -25,10 +28,12 @@ public class RelicRerollGiveCommand implements CommandExecutor {
     ) {
 
         if (!sender.isOp()) {
+
             sender.sendMessage(
                     ChatColor.RED
                             + "Only OP players can use this command."
             );
+
             return true;
         }
 
@@ -43,7 +48,9 @@ public class RelicRerollGiveCommand implements CommandExecutor {
         }
 
         Player target =
-                Bukkit.getPlayerExact(args[0]);
+                Bukkit.getPlayerExact(
+                        args[0]
+                );
 
         if (target == null) {
 
