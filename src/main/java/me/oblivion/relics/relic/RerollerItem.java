@@ -15,27 +15,38 @@ public class RerollerItem {
 
     private final NamespacedKey key;
 
-    public RerollerItem(JavaPlugin plugin) {
-        key = new NamespacedKey(plugin, "relic_reroller");
+    public RerollerItem(
+            JavaPlugin plugin
+    ) {
+
+        key = new NamespacedKey(
+                plugin,
+                "relic_reroller"
+        );
     }
 
     public ItemStack create() {
 
-        ItemStack item = new ItemStack(Material.AMETHYST_SHARD);
+        ItemStack item =
+                new ItemStack(
+                        Material.AMETHYST_SHARD
+                );
 
-        ItemMeta meta = item.getItemMeta();
+        ItemMeta meta =
+                item.getItemMeta();
 
         if (meta == null) {
             return item;
         }
 
         meta.setDisplayName(
-                ChatColor.LIGHT_PURPLE
+                ChatColor.LIGHT_PURPLE.toString()
                         + ChatColor.BOLD.toString()
                         + "Relic Reroller"
         );
 
-        List<String> lore = new ArrayList<>();
+        List<String> lore =
+                new ArrayList<>();
 
         lore.add(
                 ChatColor.DARK_GRAY
@@ -44,7 +55,7 @@ public class RerollerItem {
 
         lore.add(
                 ChatColor.GRAY
-                        + "Reroll your current Relic."
+                        + "Rerolls your current Relic."
         );
 
         lore.add(
@@ -56,7 +67,7 @@ public class RerollerItem {
 
         lore.add(
                 ChatColor.LIGHT_PURPLE
-                        + "Right-click to reroll"
+                        + "Right-click to use"
         );
 
         lore.add(
@@ -77,23 +88,32 @@ public class RerollerItem {
         return item;
     }
 
-    public boolean isReroller(ItemStack item) {
+    public boolean isReroller(
+            ItemStack item
+    ) {
 
-        if (item == null || item.getType() != Material.AMETHYST_SHARD) {
+        if (item == null
+                || item.getType()
+                != Material.AMETHYST_SHARD) {
+
             return false;
         }
 
-        ItemMeta meta = item.getItemMeta();
+        ItemMeta meta =
+                item.getItemMeta();
 
         if (meta == null) {
             return false;
         }
 
-        Byte value = meta.getPersistentDataContainer().get(
-                key,
-                PersistentDataType.BYTE
-        );
+        Byte value =
+                meta.getPersistentDataContainer()
+                        .get(
+                                key,
+                                PersistentDataType.BYTE
+                        );
 
-        return value != null && value == (byte) 1;
+        return value != null
+                && value == (byte) 1;
     }
 }
