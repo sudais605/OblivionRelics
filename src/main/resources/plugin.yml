@@ -2,31 +2,27 @@ name: OblivionRelics
 version: 1.0.0
 main: me.oblivion.relics.OblivionRelics
 api-version: '1.21'
-
 author: Oblivion
-description: Custom Relic System for Oblivion SMP
+description: Oblivion SMP Season 7 Relic System
 
 commands:
+
   relictest:
-    description: Tests the OblivionRelics plugin
+    description: Tests the Oblivion Relics plugin
     usage: /relictest
 
-  relicinfo:
-    description: Opens the Relic information menu
-    usage: /relicinfo
-
   withdraw:
-    description: Withdraws one Echo Flask
+    description: Withdraws 1 Energy into an Echo Flask
     usage: /withdraw
 
   trust:
     description: Manage trusted players
-    usage: /trust <add|remove|list> [player]
+    usage: /trust <add|remove|list>
 
   relicgive:
-    description: Gives a specific Relic to a player
+    description: Gives a specific Relic
     usage: /relicgive <player> <relic>
-    
+
   relicstart:
     description: Starts the Oblivion Relic awakening
     usage: /relicstart
