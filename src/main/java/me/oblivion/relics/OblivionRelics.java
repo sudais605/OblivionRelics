@@ -3,6 +3,7 @@ package me.oblivion.relics;
 import me.oblivion.relics.ability.AbilityActionBar;
 import me.oblivion.relics.ability.RelicAbilityEngine;
 import me.oblivion.relics.command.RelicGiveCommand;
+import me.oblivion.relics.command.RelicRerollGiveCommand;
 import me.oblivion.relics.command.RelicStartCommand;
 import me.oblivion.relics.command.TrustCommand;
 import me.oblivion.relics.command.WithdrawCommand;
@@ -12,9 +13,11 @@ import me.oblivion.relics.energy.EnergyManager;
 import me.oblivion.relics.gui.RelicInfoGUI;
 import me.oblivion.relics.listener.FlaskListener;
 import me.oblivion.relics.listener.PlayerJoinRelicListener;
+import me.oblivion.relics.listener.RerollerListener;
 import me.oblivion.relics.listener.UniversalAbilityListener;
 import me.oblivion.relics.relic.RelicItem;
 import me.oblivion.relics.relic.RelicManager;
+import me.oblivion.relics.relic.RerollerItem;
 import me.oblivion.relics.start.RelicStartManager;
 import me.oblivion.relics.trust.TrustManager;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -35,77 +38,73 @@ public final class OblivionRelics extends JavaPlugin {
     private RelicStartManager relicStartManager;
     private RelicInfoGUI relicInfoGUI;
 
+    private RerollerItem rerollerItem;
+
     @Override
     public void onEnable() {
 
-        // ==============================
-        //          CORE SYSTEMS
-        // ==============================
+        playerDataManager =
+                new PlayerDataManager(this);
 
-        playerDataManager = new PlayerDataManager(this);
+        energyManager =
+                new EnergyManager(
+                        playerDataManager
+                );
 
-        energyManager = new EnergyManager(
-                playerDataManager
-        );
+        echoFlask =
+                new EchoFlask(this);
 
-        echoFlask = new EchoFlask(this);
+        trustManager =
+                new TrustManager(
+                        playerDataManager
+                );
 
-        trustManager = new TrustManager(
-                playerDataManager
-        );
+        relicItem =
+                new RelicItem(this);
 
-        relicItem = new RelicItem(this);
+        relicManager =
+                new RelicManager(
+                        playerDataManager,
+                        relicItem
+                );
 
-        relicManager = new RelicManager(
-                playerDataManager,
-                relicItem
-        );
+        relicAbilityEngine =
+                new RelicAbilityEngine(
+                        this,
+                        relicManager,
+                        energyManager,
+                        trustManager
+                );
 
-        // ==============================
-        //        ABILITY ENGINE
-        // ==============================
+        abilityActionBar =
+                new AbilityActionBar(
+                        this,
+                        relicManager,
+                        energyManager,
+                        relicAbilityEngine
+                );
 
-        relicAbilityEngine = new RelicAbilityEngine(
-                this,
-                relicManager,
-                energyManager,
-                trustManager
-        );
+        relicStartManager =
+                new RelicStartManager(
+                        this
+                );
 
-        // ==============================
-        //          ACTION BAR
-        // ==============================
+        relicInfoGUI =
+                new RelicInfoGUI(
+                        relicManager,
+                        relicAbilityEngine,
+                        energyManager
+                );
 
-        abilityActionBar = new AbilityActionBar(
-                this,
-                relicManager,
-                energyManager,
-                relicAbilityEngine
-        );
-
-        // ==============================
-        //         START SYSTEM
-        // ==============================
-
-        relicStartManager = new RelicStartManager(
-                this
-        );
-
-        // ==============================
-        //          RELIC INFO
-        // ==============================
-
-        relicInfoGUI = new RelicInfoGUI(
-                relicManager,
-                relicAbilityEngine,
-                energyManager
-        );
+        rerollerItem =
+                new RerollerItem(this);
 
         // ==============================
         //            COMMANDS
         // ==============================
 
         if (getCommand("withdraw") != null) {
+
             getCommand("withdraw").setExecutor(
                     new WithdrawCommand(
                             energyManager,
@@ -115,6 +114,7 @@ public final class OblivionRelics extends JavaPlugin {
         }
 
         if (getCommand("trust") != null) {
+
             getCommand("trust").setExecutor(
                     new TrustCommand(
                             trustManager
@@ -123,6 +123,7 @@ public final class OblivionRelics extends JavaPlugin {
         }
 
         if (getCommand("relicgive") != null) {
+
             getCommand("relicgive").setExecutor(
                     new RelicGiveCommand(
                             relicManager
@@ -131,6 +132,7 @@ public final class OblivionRelics extends JavaPlugin {
         }
 
         if (getCommand("relicstart") != null) {
+
             getCommand("relicstart").setExecutor(
                     new RelicStartCommand(
                             this,
@@ -141,21 +143,31 @@ public final class OblivionRelics extends JavaPlugin {
         }
 
         if (getCommand("relicinfo") != null) {
+
             getCommand("relicinfo").setExecutor(
                     relicInfoGUI
             );
         }
 
-        // ==============================
-        //         SIMPLE TEST COMMAND
-        // ==============================
+        if (getCommand("relicreroll") != null) {
+
+            getCommand("relicreroll").setExecutor(
+                    new RelicRerollGiveCommand(
+                            rerollerItem
+                    )
+            );
+        }
 
         if (getCommand("relictest") != null) {
+
             getCommand("relictest").setExecutor(
                     (sender, command, label, args) -> {
+
                         sender.sendMessage(
-                                "§b§l[OblivionRelics] §aPlugin is working!"
+                                "§b§l[OblivionRelics] "
+                                        + "§aPlugin is working!"
                         );
+
                         return true;
                     }
             );
@@ -165,36 +177,55 @@ public final class OblivionRelics extends JavaPlugin {
         //           LISTENERS
         // ==============================
 
-        getServer().getPluginManager().registerEvents(
-                new FlaskListener(
-                        echoFlask,
-                        energyManager
-                ),
-                this
-        );
+        getServer()
+                .getPluginManager()
+                .registerEvents(
+                        new FlaskListener(
+                                echoFlask,
+                                energyManager
+                        ),
+                        this
+                );
 
-        getServer().getPluginManager().registerEvents(
-                new UniversalAbilityListener(
-                        relicAbilityEngine
-                ),
-                this
-        );
+        getServer()
+                .getPluginManager()
+                .registerEvents(
+                        new UniversalAbilityListener(
+                                relicAbilityEngine
+                        ),
+                        this
+                );
 
-        getServer().getPluginManager().registerEvents(
-                new PlayerJoinRelicListener(
-                        relicManager,
-                        relicStartManager
-                ),
-                this
-        );
+        getServer()
+                .getPluginManager()
+                .registerEvents(
+                        new PlayerJoinRelicListener(
+                                relicManager,
+                                relicStartManager
+                        ),
+                        this
+                );
 
-        getServer().getPluginManager().registerEvents(
-                relicInfoGUI,
-                this
-        );
+        getServer()
+                .getPluginManager()
+                .registerEvents(
+                        relicInfoGUI,
+                        this
+                );
+
+        getServer()
+                .getPluginManager()
+                .registerEvents(
+                        new RerollerListener(
+                                relicManager,
+                                rerollerItem,
+                                relicItem
+                        ),
+                        this
+                );
 
         // ==============================
-        //             LOG
+        //              LOG
         // ==============================
 
         getLogger().info("================================");
@@ -209,12 +240,16 @@ public final class OblivionRelics extends JavaPlugin {
         getLogger().info("Universal action bar loaded.");
         getLogger().info("Relic start system loaded.");
         getLogger().info("Relic info GUI loaded.");
+        getLogger().info("Relic reroller loaded.");
         getLogger().info("================================");
     }
 
     @Override
     public void onDisable() {
-        getLogger().info("OblivionRelics has been disabled!");
+
+        getLogger().info(
+                "OblivionRelics has been disabled!"
+        );
     }
 
     public PlayerDataManager getPlayerDataManager() {
@@ -255,5 +290,9 @@ public final class OblivionRelics extends JavaPlugin {
 
     public RelicInfoGUI getRelicInfoGUI() {
         return relicInfoGUI;
+    }
+
+    public RerollerItem getRerollerItem() {
+        return rerollerItem;
     }
 }
