@@ -9,7 +9,8 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.inventory.ItemStack;
 
-public class PlayerJoinRelicListener implements Listener {
+public class PlayerJoinRelicListener
+        implements Listener {
 
     private final RelicManager relicManager;
     private final RelicStartManager startManager;
@@ -25,41 +26,79 @@ public class PlayerJoinRelicListener implements Listener {
     @EventHandler
     public void onJoin(PlayerJoinEvent event) {
 
+        // SMP has not started yet
         if (!startManager.isStarted()) {
             return;
         }
 
-        Player player = event.getPlayer();
+        Player player =
+                event.getPlayer();
 
+        // Already has a relic
         if (relicManager.hasRelic(player)) {
             return;
         }
 
-        RelicType relic = relicManager.giveRandomRelic(
-                player.getUniqueId()
-        );
+        RelicType relic =
+                relicManager.giveRandomRelic(
+                        player.getUniqueId()
+                );
 
-        ItemStack item = relicManager.createRelicItem(relic);
+        ItemStack item =
+                relicManager.createRelicItem(
+                        relic
+                );
 
         if (item != null) {
-            player.getInventory().addItem(item);
+            player.getInventory()
+                    .addItem(item);
         }
 
         player.sendMessage("");
-        player.sendMessage("§8§m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
-        player.sendMessage("§b§l        YOUR RELIC HAS AWAKENED");
+        player.sendMessage(
+                "§8§m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+        );
+        player.sendMessage(
+                "§b§l        YOUR RELIC HAS AWAKENED"
+        );
         player.sendMessage("");
-        player.sendMessage("§7Relic: §b§l" + relic.getDisplayName());
-        player.sendMessage("§7Use §f/relicinfo §7to view your abilities.");
-        player.sendMessage("§8§m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+        player.sendMessage(
+                "§7Relic: §b§l"
+                        + relic.getDisplayName()
+        );
+        player.sendMessage(
+                "§7Use §f/relicinfo §7to view your abilities."
+        );
+        player.sendMessage(
+                "§8§m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+        );
         player.sendMessage("");
 
         player.sendTitle(
-                "§b§l" + relic.getDisplayName(),
+                "§b§l"
+                        + relic.getDisplayName(),
                 "§7Your Relic has awakened",
                 10,
                 50,
                 15
+        );
+
+        player.getWorld().spawnParticle(
+                org.bukkit.Particle.END_ROD,
+                player.getLocation()
+                        .add(0, 1, 0),
+                30,
+                0.6,
+                0.8,
+                0.6,
+                0.03
+        );
+
+        player.getWorld().playSound(
+                player.getLocation(),
+                org.bukkit.Sound.BLOCK_AMETHYST_BLOCK_CHIME,
+                1.2f,
+                1.2f
         );
     }
 }
