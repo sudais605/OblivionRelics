@@ -26,3 +26,7 @@ commands:
   relicgive:
     description: Gives a specific Relic to a player
     usage: /relicgive <player> <relic>
+    
+  relicstart:
+    description: Starts the Oblivion Relic awakening
+    usage: /relicstart
