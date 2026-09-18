@@ -10,11 +10,14 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
-public class RelicGiveCommand implements CommandExecutor {
+public class RelicGiveCommand
+        implements CommandExecutor {
 
     private final RelicManager relicManager;
 
-    public RelicGiveCommand(RelicManager relicManager) {
+    public RelicGiveCommand(
+            RelicManager relicManager
+    ) {
         this.relicManager = relicManager;
     }
 
@@ -25,37 +28,85 @@ public class RelicGiveCommand implements CommandExecutor {
             String label,
             String[] args
     ) {
+
         if (!sender.isOp()) {
-            sender.sendMessage(ChatColor.RED + "Only OP players can use this command.");
+
+            sender.sendMessage(
+                    ChatColor.RED
+                            + "Only OP players can use this command."
+            );
+
             return true;
         }
 
         if (args.length < 2) {
-            sender.sendMessage(ChatColor.RED + "Usage: /relicgive <player> <relic>");
-            sender.sendMessage(ChatColor.GRAY + "Available: " + formatRelics());
+
+            sender.sendMessage(
+                    ChatColor.RED
+                            + "Usage: /relicgive <player> <relic>"
+            );
+
+            sender.sendMessage(
+                    ChatColor.GRAY
+                            + "Relics: "
+                            + joinRelics()
+            );
+
             return true;
         }
 
-        Player target = Bukkit.getPlayerExact(args[0]);
+        Player target =
+                Bukkit.getPlayerExact(
+                        args[0]
+                );
+
         if (target == null) {
-            sender.sendMessage(ChatColor.RED + "That player is not online.");
+
+            sender.sendMessage(
+                    ChatColor.RED
+                            + "That player is not online."
+            );
+
             return true;
         }
 
         RelicType relic;
+
         try {
-            relic = RelicType.valueOf(args[1].toUpperCase());
+
+            relic =
+                    RelicType.valueOf(
+                            args[1].toUpperCase()
+                    );
+
         } catch (IllegalArgumentException exception) {
-            sender.sendMessage(ChatColor.RED + "Unknown Relic: " + args[1]);
-            sender.sendMessage(ChatColor.GRAY + "Available: " + formatRelics());
+
+            sender.sendMessage(
+                    ChatColor.RED
+                            + "Unknown Relic."
+            );
+
+            sender.sendMessage(
+                    ChatColor.GRAY
+                            + "Relics: "
+                            + joinRelics()
+            );
+
             return true;
         }
 
-        // Remove any previous Relic items so the player always has one clean Relic item.
-        for (int slot = 0; slot < target.getInventory().getSize(); slot++) {
-            ItemStack item = target.getInventory().getItem(slot);
+        for (int slot = 0;
+             slot < target.getInventory().getSize();
+             slot++) {
+
+            ItemStack item =
+                    target.getInventory()
+                            .getItem(slot);
+
             if (relicManager.isRelicItem(item)) {
-                target.getInventory().setItem(slot, null);
+
+                target.getInventory()
+                        .setItem(slot, null);
             }
         }
 
@@ -64,35 +115,53 @@ public class RelicGiveCommand implements CommandExecutor {
                 relic
         );
 
-        ItemStack item = relicManager.createRelicItem(relic);
+        ItemStack item =
+                relicManager.createRelicItem(
+                        relic
+                );
+
         if (item != null) {
-            target.getInventory().addItem(item);
+
+            target.getInventory()
+                    .addItem(item);
         }
 
         sender.sendMessage(
-                ChatColor.GREEN + "Gave "
-                        + ChatColor.AQUA + relic.getDisplayName()
-                        + ChatColor.GREEN + " to "
-                        + target.getName() + "."
+                ChatColor.GREEN
+                        + "Gave "
+                        + relic.getDisplayName()
+                        + " to "
+                        + target.getName()
+                        + "."
         );
 
         target.sendMessage(
-                ChatColor.AQUA + "Your Relic is now "
-                        + ChatColor.BOLD + relic.getDisplayName() + ChatColor.RESET
-                        + ChatColor.AQUA + "."
+                ChatColor.AQUA
+                        + "Your Relic is now "
+                        + ChatColor.BOLD
+                        + relic.getDisplayName()
+                        + ChatColor.AQUA
+                        + "."
         );
 
         return true;
     }
 
-    private String formatRelics() {
-        StringBuilder builder = new StringBuilder();
+    private String joinRelics() {
 
-        for (RelicType relic : RelicType.values()) {
+        StringBuilder builder =
+                new StringBuilder();
+
+        for (RelicType relic :
+                RelicType.values()) {
+
             if (builder.length() > 0) {
-                builder.append(ChatColor.GRAY).append(", ");
+                builder.append(", ");
             }
-            builder.append(ChatColor.AQUA).append(relic.name());
+
+            builder.append(
+                    relic.name().toLowerCase()
+            );
         }
 
         return builder.toString();
