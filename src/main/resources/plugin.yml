@@ -30,3 +30,7 @@ commands:
   relicstart:
     description: Starts the Oblivion Relic awakening
     usage: /relicstart
+
+  relicinfo:
+    description: Opens the Oblivion Relics information menu
+    usage: /relicinfo
