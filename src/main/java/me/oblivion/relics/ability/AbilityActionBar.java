@@ -1,115 +1,106 @@
 package me.oblivion.relics.ability;
 
+import me.oblivion.relics.energy.EnergyManager;
 import me.oblivion.relics.relic.RelicManager;
 import me.oblivion.relics.relic.RelicType;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
-import org.bukkit.Bukkit;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scheduler.BukkitTask;
 
 public class AbilityActionBar {
 
     private final JavaPlugin plugin;
     private final RelicManager relicManager;
-    private final AbilityManager abilityManager;
-
-    private BukkitTask task;
+    private final EnergyManager energyManager;
+    private final RelicAbilityEngine abilityEngine;
 
     public AbilityActionBar(
             JavaPlugin plugin,
             RelicManager relicManager,
-            AbilityManager abilityManager
+            EnergyManager energyManager,
+            RelicAbilityEngine abilityEngine
     ) {
         this.plugin = plugin;
         this.relicManager = relicManager;
-        this.abilityManager = abilityManager;
+        this.energyManager = energyManager;
+        this.abilityEngine = abilityEngine;
+
+        start();
     }
 
-    public void start() {
-
-        if (task != null) {
-            return;
-        }
-
-        task = Bukkit.getScheduler().runTaskTimer(
+    private void start() {
+        plugin.getServer().getScheduler().runTaskTimer(
                 plugin,
-                this::updateAllPlayers,
-                0L,
+                () -> {
+                    for (Player player : plugin.getServer().getOnlinePlayers()) {
+                        update(player);
+                    }
+                },
+                2L,
                 2L
         );
     }
 
-    public void stop() {
+    private void update(Player player) {
 
-        if (task != null) {
-            task.cancel();
-            task = null;
-        }
-    }
+        RelicType relic = relicManager.getRelic(player.getUniqueId());
 
-    private void updateAllPlayers() {
-
-        for (Player player : Bukkit.getOnlinePlayers()) {
-
-            RelicType relic =
-                    relicManager.getRelic(player.getUniqueId());
-
-            if (relic == null) {
-                continue;
-            }
-
-            if (relic != RelicType.RIFT) {
-                continue;
-            }
-
-            updateRiftBar(player);
-        }
-    }
-
-    private void updateRiftBar(Player player) {
-
-        long cooldown =
-                abilityManager.getRemainingCooldown(
-                        player,
-                        "RIFT_PULL"
-                );
-
-        String abilityOne;
-
-        if (cooldown > 0) {
-
-            double seconds =
-                    Math.ceil(cooldown / 100.0) / 10.0;
-
-            abilityOne =
-                    "§cRift Pull " +
-                    String.format("%.1fs", seconds);
-
-        } else {
-
-            abilityOne =
-                    "§aRift Pull READY";
+        if (relic == null) {
+            player.sendActionBar(
+                    LegacyComponentSerializer.legacySection().deserialize(
+                            "§7No Relic equipped"
+                    )
+            );
+            return;
         }
 
-        String abilityTwo =
-                "§eRift Dash 8E";
+        int energy = energyManager.getEnergy(player.getUniqueId());
 
-        String abilityThree =
-                "§eRift Break 10E";
+        String ability1 = formatAbility(player, relic, 1, "[F]");
+        String ability2 = formatAbility(player, relic, 2, "[SHIFT+F]");
+        String ability3 = formatAbility(player, relic, 3, "[DOUBLE F]");
 
         String message =
-                "§b[F] §f" + abilityOne +
-                " §8│ " +
-                "§b[SHIFT+F] §f" + abilityTwo +
-                " §8│ " +
-                "§b[CTRL+F] §f" + abilityThree;
+                "§8[§b" + relic.getDisplayName() + "§8] "
+                        + ability1
+                        + " §8│ "
+                        + ability2
+                        + " §8│ "
+                        + ability3
+                        + " §8│ §b⚡ " + energy + "/10";
 
         player.sendActionBar(
-                net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer
-                        .legacySection()
-                        .deserialize(message)
+                LegacyComponentSerializer.legacySection().deserialize(message)
         );
+    }
+
+    private String formatAbility(
+            Player player,
+            RelicType relic,
+            int slot,
+            String key
+    ) {
+        String name = abilityEngine.getAbilityName(relic, slot);
+
+        if (!abilityEngine.isAbilityUnlocked(player, slot)) {
+
+            int required = slot == 2 ? 8 : 10;
+
+            return "§7" + key
+                    + " §8" + name
+                    + " §cLOCKED(" + required + "E)";
+        }
+
+        int cooldown = abilityEngine.remainingCooldown(player, slot);
+
+        if (cooldown > 0) {
+            return "§f" + key
+                    + " §7" + name
+                    + " §c" + cooldown + "s";
+        }
+
+        return "§f" + key
+                + " §b" + name
+                + " §aREADY";
     }
 }
