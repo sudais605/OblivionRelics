@@ -4,6 +4,7 @@ import me.oblivion.relics.relic.RelicItem;
 import me.oblivion.relics.relic.RelicManager;
 import me.oblivion.relics.relic.RelicType;
 import me.oblivion.relics.relic.RerollerItem;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
@@ -13,6 +14,8 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.plugin.Plugin;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -33,24 +36,30 @@ public class RerollerListener implements Listener {
     }
 
     @EventHandler
-    public void onUse(PlayerInteractEvent event) {
+    public void onUse(
+            PlayerInteractEvent event
+    ) {
 
-        Action action = event.getAction();
+        Action action =
+                event.getAction();
 
         if (action != Action.RIGHT_CLICK_AIR
                 && action != Action.RIGHT_CLICK_BLOCK) {
+
             return;
         }
 
-        ItemStack item = event.getItem();
+        ItemStack held =
+                event.getItem();
 
-        if (!rerollerItem.isReroller(item)) {
+        if (!rerollerItem.isReroller(held)) {
             return;
         }
 
         event.setCancelled(true);
 
-        Player player = event.getPlayer();
+        Player player =
+                event.getPlayer();
 
         RelicType current =
                 relicManager.getRelic(
@@ -67,100 +76,137 @@ public class RerollerListener implements Listener {
             return;
         }
 
-        RelicType newRelic = getDifferentRelic(current);
+        RelicType newRelic =
+                getDifferentRelic(current);
 
-        // Save the new Relic
-        relicManager.setRelic(
-                player.getUniqueId(),
-                newRelic
-        );
+        consumeOne(player);
 
-        // Remove old Relic item(s)
-        removeRelicItems(player);
+        Plugin plugin =
+                Bukkit.getPluginManager()
+                        .getPlugin("OblivionRelics");
 
-        // Give new Relic item
-        ItemStack newItem =
-                relicManager.createRelicItem(newRelic);
-
-        if (newItem != null) {
-            player.getInventory().addItem(newItem);
+        if (plugin == null) {
+            return;
         }
 
-        // Consume one reroller
-        if (item.getAmount() <= 1) {
-            player.getInventory().setItemInMainHand(null);
-        } else {
-            item.setAmount(item.getAmount() - 1);
-            player.getInventory().setItemInMainHand(item);
-        }
+        new BukkitRunnable() {
 
-        // Visual effects
-        player.getWorld().spawnParticle(
-                Particle.ENCHANT,
-                player.getLocation().add(0, 1, 0),
-                45,
-                0.7,
-                1.0,
-                0.7,
-                0.05
-        );
+            int ticks = 0;
 
-        player.getWorld().playSound(
-                player.getLocation(),
-                Sound.BLOCK_AMETHYST_BLOCK_CHIME,
-                1.4f,
-                1.3f
-        );
+            @Override
+            public void run() {
 
-        player.sendMessage("");
+                ticks += 2;
 
-        player.sendMessage(
-                ChatColor.DARK_GRAY
-                        + "━━━━━━━━━━━━━━━━━━━━━━━━"
-        );
+                player.getWorld().spawnParticle(
+                        Particle.ENCHANT,
+                        player.getLocation()
+                                .add(0, 1, 0),
+                        12,
+                        0.45,
+                        0.8,
+                        0.45,
+                        0.03
+                );
 
-        player.sendMessage(
-                ChatColor.LIGHT_PURPLE
-                        + ChatColor.BOLD.toString()
-                        + "        RELIC REROLLED"
-        );
+                if (ticks % 10 == 0) {
 
-        player.sendMessage("");
+                    player.getWorld().playSound(
+                            player.getLocation(),
+                            Sound.BLOCK_AMETHYST_BLOCK_CHIME,
+                            0.8f,
+                            0.7f + ticks * 0.008f
+                    );
+                }
 
-        player.sendMessage(
-                ChatColor.GRAY
-                        + "Previous: "
-                        + ChatColor.RED
-                        + current.getDisplayName()
-        );
+                if (ticks >= 50) {
 
-        player.sendMessage(
-                ChatColor.GRAY
-                        + "New Relic: "
-                        + ChatColor.AQUA
-                        + ChatColor.BOLD.toString()
-                        + newRelic.getDisplayName()
-        );
+                    relicManager.setRelic(
+                            player.getUniqueId(),
+                            newRelic
+                    );
 
-        player.sendMessage("");
+                    removeRelicItems(player);
 
-        player.sendMessage(
-                ChatColor.DARK_GRAY
-                        + "━━━━━━━━━━━━━━━━━━━━━━━━"
-        );
+                    ItemStack item =
+                            relicManager.createRelicItem(
+                                    newRelic
+                            );
 
-        player.sendTitle(
-                ChatColor.LIGHT_PURPLE
-                        + ChatColor.BOLD.toString()
-                        + newRelic.getDisplayName(),
-                ChatColor.GRAY + "Your Relic has been rerolled",
-                10,
-                45,
-                15
+                    if (item != null) {
+                        player.getInventory()
+                                .addItem(item);
+                    }
+
+                    player.getWorld().spawnParticle(
+                            Particle.END_ROD,
+                            player.getLocation()
+                                    .add(0, 1, 0),
+                            45,
+                            0.7,
+                            1.0,
+                            0.7,
+                            0.04
+                    );
+
+                    player.getWorld().playSound(
+                            player.getLocation(),
+                            Sound.BLOCK_AMETHYST_BLOCK_CHIME,
+                            1.4f,
+                            1.3f
+                    );
+
+                    player.sendMessage("");
+
+                    player.sendMessage(
+                            "§8§m━━━━━━━━━━━━━━━━━━━━━━━━"
+                    );
+
+                    player.sendMessage(
+                            "§d§l         RELIC REROLLED"
+                    );
+
+                    player.sendMessage("");
+
+                    player.sendMessage(
+                            "§7Previous: §c"
+                                    + current.getDisplayName()
+                    );
+
+                    player.sendMessage(
+                            "§7New Relic: §b§l"
+                                    + newRelic.getDisplayName()
+                    );
+
+                    player.sendMessage("");
+
+                    player.sendMessage(
+                            "§8§m━━━━━━━━━━━━━━━━━━━━━━━━"
+                    );
+
+                    player.sendTitle(
+                            "§b§l"
+                                    + newRelic.getDisplayName(),
+                            "§7Your Relic has changed",
+                            10,
+                            45,
+                            15
+                    );
+
+                    cancel();
+                }
+            }
+
+        }.runTaskTimer(
+                plugin,
+                0L,
+                2L
         );
     }
 
-    private RelicType getDifferentRelic(RelicType current) {
+    private RelicType getDifferentRelic(
+            RelicType current
+    ) {
 
         RelicType[] relics =
                 RelicType.values();
@@ -168,29 +214,62 @@ public class RerollerListener implements Listener {
         RelicType result;
 
         do {
-            result = relics[
-                    ThreadLocalRandom.current()
-                            .nextInt(relics.length)
-            ];
+
+            result =
+                    relics[
+                            ThreadLocalRandom.current()
+                                    .nextInt(
+                                            relics.length
+                                    )
+                    ];
+
         } while (result == current);
 
         return result;
     }
 
-    private void removeRelicItems(Player player) {
+    private void consumeOne(
+            Player player
+    ) {
+
+        ItemStack item =
+                player.getInventory()
+                        .getItemInMainHand();
+
+        if (!rerollerItem.isReroller(item)) {
+            return;
+        }
+
+        if (item.getAmount() <= 1) {
+
+            player.getInventory()
+                    .setItemInMainHand(null);
+
+        } else {
+
+            item.setAmount(
+                    item.getAmount() - 1
+            );
+
+            player.getInventory()
+                    .setItemInMainHand(item);
+        }
+    }
+
+    private void removeRelicItems(
+            Player player
+    ) {
 
         for (int slot = 0;
              slot < player.getInventory().getSize();
              slot++) {
 
-            ItemStack stack =
-                    player.getInventory().getItem(slot);
+            ItemStack item =
+                    player.getInventory()
+                            .getItem(slot);
 
-            if (stack == null) {
-                continue;
-            }
+            if (relicItem.isRelic(item)) {
 
-            if (relicItem.isRelic(stack)) {
                 player.getInventory()
                         .setItem(slot, null);
             }
