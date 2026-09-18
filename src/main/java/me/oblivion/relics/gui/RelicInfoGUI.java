@@ -91,11 +91,14 @@ public class RelicInfoGUI implements org.bukkit.command.CommandExecutor, Listene
             boolean current =
                     relic == currentRelic;
 
+            String nameColor =
+                    current
+                            ? ChatColor.GREEN.toString()
+                            : ChatColor.AQUA.toString();
+
             meta.setDisplayName(
-                    (current
-                            ? ChatColor.GREEN
-                            : ChatColor.AQUA)
-                            + ChatColor.BOLD
+                    nameColor
+                            + ChatColor.BOLD.toString()
                             + relic.getDisplayName()
             );
 
@@ -191,10 +194,6 @@ public class RelicInfoGUI implements org.bukkit.command.CommandExecutor, Listene
             );
         }
 
-        // ==============================
-        //          INFO ITEM
-        // ==============================
-
         ItemStack info =
                 new ItemStack(Material.NETHER_STAR);
 
@@ -204,8 +203,8 @@ public class RelicInfoGUI implements org.bukkit.command.CommandExecutor, Listene
         if (infoMeta != null) {
 
             infoMeta.setDisplayName(
-                    ChatColor.LIGHT_PURPLE
-                            + ChatColor.BOLD
+                    ChatColor.LIGHT_PURPLE.toString()
+                            + ChatColor.BOLD.toString()
                             + "Energy & Controls"
             );
 
@@ -215,7 +214,8 @@ public class RelicInfoGUI implements org.bukkit.command.CommandExecutor, Listene
             lore.add("");
 
             lore.add(
-                    ChatColor.GRAY + "Energy System"
+                    ChatColor.GRAY
+                            + "Energy System"
             );
 
             lore.add(
@@ -242,7 +242,8 @@ public class RelicInfoGUI implements org.bukkit.command.CommandExecutor, Listene
             lore.add("");
 
             lore.add(
-                    ChatColor.GRAY + "Controls"
+                    ChatColor.GRAY
+                            + "Controls"
             );
 
             lore.add(
