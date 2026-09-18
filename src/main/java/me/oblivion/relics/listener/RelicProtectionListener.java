@@ -9,13 +9,13 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.ItemSpawnEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.event.inventory.InventoryMoveItemEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
-import org.bukkit.inventory.InventoryAction;
 import org.bukkit.inventory.ItemStack;
 
 public class RelicProtectionListener implements Listener {
@@ -34,10 +34,8 @@ public class RelicProtectionListener implements Listener {
     ) {
 
         if (relicManager.isRelicItem(
-                event.getItemDrop()
-                        .getItemStack()
+                event.getItemDrop().getItemStack()
         )) {
-
             event.setCancelled(true);
         }
     }
@@ -96,7 +94,6 @@ public class RelicProtectionListener implements Listener {
                             );
 
                     if (relic != null) {
-
                         player.getInventory()
                                 .addItem(relic);
                     }
@@ -131,12 +128,16 @@ public class RelicProtectionListener implements Listener {
                 event.getRawSlot() >= 0
                         && event.getRawSlot() < topSize;
 
+        // Prevent putting a Relic into
+        // any open container.
         if (clickedTop && cursorIsRelic) {
 
             event.setCancelled(true);
             return;
         }
 
+        // Prevent shift-clicking a Relic
+        // from player inventory into a container.
         if (!clickedTop
                 && currentIsRelic
                 && event.getAction()
@@ -146,6 +147,8 @@ public class RelicProtectionListener implements Listener {
             return;
         }
 
+        // Prevent hotbar-swapping a Relic
+        // into a container.
         if (clickedTop
                 && event.getHotbarButton() >= 0) {
 
@@ -159,7 +162,6 @@ public class RelicProtectionListener implements Listener {
                             );
 
             if (relicManager.isRelicItem(hotbar)) {
-
                 event.setCancelled(true);
             }
         }
