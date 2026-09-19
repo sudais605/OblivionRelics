@@ -3,6 +3,7 @@ package me.oblivion.relics.relic;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
@@ -18,7 +19,6 @@ public class RerollerItem {
     public RerollerItem(
             JavaPlugin plugin
     ) {
-
         key = new NamespacedKey(
                 plugin,
                 "relic_reroller"
@@ -26,6 +26,14 @@ public class RerollerItem {
     }
 
     public ItemStack create() {
+
+        /*
+         * AMETHYST_SHARD is only the temporary
+         * vanilla item.
+         *
+         * Later the resource pack can replace
+         * its texture with the real Reroller.
+         */
 
         ItemStack item =
                 new ItemStack(
@@ -50,7 +58,21 @@ public class RerollerItem {
 
         lore.add(
                 ChatColor.DARK_GRAY
-                        + "━━━━━━━━━━━━━━━━━━"
+                        + "━━━━━━━━━━━━━━━━━━━━"
+        );
+
+        lore.add(
+                ChatColor.GRAY
+                        + "A mysterious relic catalyst."
+        );
+
+        lore.add("");
+
+        lore.add(
+                ChatColor.WHITE
+                        + "Use: "
+                        + ChatColor.LIGHT_PURPLE
+                        + "Right-Click"
         );
 
         lore.add(
@@ -60,19 +82,24 @@ public class RerollerItem {
 
         lore.add(
                 ChatColor.GRAY
-                        + "A different Relic is guaranteed."
+                        + "Your current Relic cannot"
+        );
+
+        lore.add(
+                ChatColor.GRAY
+                        + "be selected again."
         );
 
         lore.add("");
 
         lore.add(
                 ChatColor.LIGHT_PURPLE
-                        + "Right-click to use"
+                        + "✦ A new Relic awaits..."
         );
 
         lore.add(
                 ChatColor.DARK_GRAY
-                        + "━━━━━━━━━━━━━━━━━━"
+                        + "━━━━━━━━━━━━━━━━━━━━"
         );
 
         meta.setLore(lore);
@@ -81,6 +108,10 @@ public class RerollerItem {
                 key,
                 PersistentDataType.BYTE,
                 (byte) 1
+        );
+
+        meta.addItemFlags(
+                ItemFlag.HIDE_ATTRIBUTES
         );
 
         item.setItemMeta(meta);
@@ -92,8 +123,11 @@ public class RerollerItem {
             ItemStack item
     ) {
 
-        if (item == null
-                || item.getType()
+        if (item == null) {
+            return false;
+        }
+
+        if (item.getType()
                 != Material.AMETHYST_SHARD) {
 
             return false;
