@@ -2,6 +2,7 @@ package me.oblivion.relics.command;
 
 import me.oblivion.relics.OblivionRelics;
 import me.oblivion.relics.relic.RelicManager;
+import me.oblivion.relics.relic.RelicType;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -10,8 +11,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
-public class RelicRemoveCommand
-        implements CommandExecutor {
+public class RelicRemoveCommand implements CommandExecutor {
 
     private final RelicManager relicManager;
 
@@ -73,7 +73,12 @@ public class RelicRemoveCommand
             }
         }
 
-        if (!relicManager.hasRelic(target)) {
+        RelicType currentRelic =
+                relicManager.getRelic(
+                        target.getUniqueId()
+                );
+
+        if (currentRelic == null) {
 
             sender.sendMessage(
                     ChatColor.RED
@@ -84,35 +89,28 @@ public class RelicRemoveCommand
             return true;
         }
 
-        var relic =
-                relicManager.getRelic(
-                        target.getUniqueId()
-                );
-
-        String oldRelic =
-                relic.getDisplayName();
-
+        // Remove stored Relic.
         relicManager.setRelic(
                 target.getUniqueId(),
                 null
         );
 
-        if (sender instanceof Player) {
+        // Clear all active ability state.
+        OblivionRelics plugin =
+                OblivionRelics.getPlugin(
+                        OblivionRelics.class
+                );
 
-            OblivionRelics plugin =
-                    OblivionRelics.getPlugin(
-                            OblivionRelics.class
+        if (plugin != null
+                && plugin.getRelicAbilityEngine() != null) {
+
+            plugin.getRelicAbilityEngine()
+                    .clearPlayerState(
+                            target.getUniqueId()
                     );
-
-            if (plugin != null) {
-
-                plugin.getRelicAbilityEngine()
-                        .clearPlayerState(
-                                target.getUniqueId()
-                        );
-            }
         }
 
+        // Remove every Relic item from inventory.
         for (int slot = 0;
              slot < target.getInventory().getSize();
              slot++) {
@@ -132,15 +130,44 @@ public class RelicRemoveCommand
         sender.sendMessage(
                 ChatColor.GREEN
                         + "Removed "
-                        + oldRelic
+                        + currentRelic.getDisplayName()
                         + " from "
                         + target.getName()
                         + "."
         );
 
+        target.sendMessage("");
+
+        target.sendMessage(
+                ChatColor.DARK_GRAY
+                        + "━━━━━━━━━━━━━━━━━━━━"
+        );
+
         target.sendMessage(
                 ChatColor.RED
-                        + "Your Relic has been removed."
+                        + ChatColor.BOLD.toString()
+                        + "        RELIC REMOVED"
+        );
+
+        target.sendMessage("");
+
+        target.sendMessage(
+                ChatColor.GRAY
+                        + "Your "
+                        + ChatColor.AQUA
+                        + currentRelic.getDisplayName()
+                        + ChatColor.GRAY
+                        + " has been removed."
+        );
+
+        target.sendMessage(
+                ChatColor.GRAY
+                        + "All Relic abilities are now disabled."
+        );
+
+        target.sendMessage(
+                ChatColor.DARK_GRAY
+                        + "━━━━━━━━━━━━━━━━━━━━"
         );
 
         return true;
