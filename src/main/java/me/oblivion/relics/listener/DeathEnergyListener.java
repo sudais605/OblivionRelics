@@ -23,40 +23,37 @@ public class DeathEnergyListener implements Listener {
     }
 
     @EventHandler
-    public void onDeath(
-            PlayerDeathEvent event
-    ) {
+    public void onDeath(PlayerDeathEvent event) {
 
-        Player victim =
-                event.getEntity();
+        Player victim = event.getEntity();
 
-        int energy =
-                energyManager.getEnergy(
-                        victim.getUniqueId()
-                );
+        int energy = energyManager.getEnergy(
+                victim.getUniqueId()
+        );
 
         if (energy > 0) {
 
-            ItemStack flask =
-                    echoFlask.create();
+            ItemStack flask = echoFlask.create();
 
-            flask.setAmount(
-                    energy
-            );
+            flask.setAmount(energy);
 
-            event.getDrops().add(
-                    flask
-            );
+            event.getDrops().add(flask);
 
             energyManager.setEnergy(
                     victim.getUniqueId(),
                     0
             );
 
+            victim.sendMessage(
+                    ChatColor.RED
+                            + "You lost "
+                            + energy
+                            + " Energy."
+            );
+
         } else {
 
-            Player killer =
-                    victim.getKiller();
+            Player killer = victim.getKiller();
 
             if (killer != null) {
 
