@@ -26,8 +26,7 @@ import me.oblivion.relics.start.RelicStartManager;
 import me.oblivion.relics.trust.TrustManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
-public final class OblivionRelics
-        extends JavaPlugin {
+public final class OblivionRelics extends JavaPlugin {
 
     private PlayerDataManager playerDataManager;
     private EnergyManager energyManager;
@@ -103,7 +102,6 @@ public final class OblivionRelics
                 new RerollerItem(this);
 
         if (getCommand("withdraw") != null) {
-
             getCommand("withdraw")
                     .setExecutor(
                             new WithdrawCommand(
@@ -114,7 +112,6 @@ public final class OblivionRelics
         }
 
         if (getCommand("trust") != null) {
-
             getCommand("trust")
                     .setExecutor(
                             new TrustCommand(
@@ -124,7 +121,6 @@ public final class OblivionRelics
         }
 
         if (getCommand("relicgive") != null) {
-
             getCommand("relicgive")
                     .setExecutor(
                             new RelicGiveCommand(
@@ -134,7 +130,6 @@ public final class OblivionRelics
         }
 
         if (getCommand("relicremove") != null) {
-
             getCommand("relicremove")
                     .setExecutor(
                             new RelicRemoveCommand(
@@ -144,7 +139,6 @@ public final class OblivionRelics
         }
 
         if (getCommand("relicstart") != null) {
-
             getCommand("relicstart")
                     .setExecutor(
                             new RelicStartCommand(
@@ -156,7 +150,6 @@ public final class OblivionRelics
         }
 
         if (getCommand("relicinfo") != null) {
-
             getCommand("relicinfo")
                     .setExecutor(
                             relicInfoGUI
@@ -164,7 +157,6 @@ public final class OblivionRelics
         }
 
         if (getCommand("relicreroll") != null) {
-
             getCommand("relicreroll")
                     .setExecutor(
                             new RelicRerollGiveCommand(
@@ -174,7 +166,6 @@ public final class OblivionRelics
         }
 
         if (getCommand("relictest") != null) {
-
             getCommand("relictest")
                     .setExecutor(
                             (sender, command, label, args) -> {
@@ -273,7 +264,19 @@ public final class OblivionRelics
         );
 
         getLogger().info(
-                "Reroller system loaded."
+                "Custom ability death messages loaded."
+        );
+
+        getLogger().info(
+                "8 second AutoCrit loaded."
+        );
+
+        getLogger().info(
+                "8 second Phase Shift loaded."
+        );
+
+        getLogger().info(
+                "Relic reroller loaded."
         );
 
         getLogger().info(
@@ -283,7 +286,6 @@ public final class OblivionRelics
 
     @Override
     public void onDisable() {
-
         getLogger().info(
                 "OblivionRelics has been disabled!"
         );
