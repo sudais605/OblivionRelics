@@ -1,5 +1,6 @@
 package me.oblivion.relics.command;
 
+import me.oblivion.relics.OblivionRelics;
 import me.oblivion.relics.relic.RelicManager;
 import me.oblivion.relics.relic.RelicType;
 import org.bukkit.Bukkit;
@@ -10,8 +11,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
-public class RelicGiveCommand
-        implements CommandExecutor {
+public class RelicGiveCommand implements CommandExecutor {
 
     private final RelicManager relicManager;
 
@@ -49,16 +49,14 @@ public class RelicGiveCommand
             sender.sendMessage(
                     ChatColor.GRAY
                             + "Relics: "
-                            + joinRelics()
+                            + getRelicList()
             );
 
             return true;
         }
 
         Player target =
-                Bukkit.getPlayerExact(
-                        args[0]
-                );
+                Bukkit.getPlayerExact(args[0]);
 
         if (target == null) {
 
@@ -70,11 +68,11 @@ public class RelicGiveCommand
             return true;
         }
 
-        RelicType relic;
+        RelicType newRelic;
 
         try {
 
-            relic =
+            newRelic =
                     RelicType.valueOf(
                             args[1].toUpperCase()
                     );
@@ -83,18 +81,20 @@ public class RelicGiveCommand
 
             sender.sendMessage(
                     ChatColor.RED
-                            + "Unknown Relic."
+                            + "Unknown Relic: "
+                            + args[1]
             );
 
             sender.sendMessage(
                     ChatColor.GRAY
                             + "Relics: "
-                            + joinRelics()
+                            + getRelicList()
             );
 
             return true;
         }
 
+        // Remove every old Relic item.
         for (int slot = 0;
              slot < target.getInventory().getSize();
              slot++) {
@@ -103,67 +103,118 @@ public class RelicGiveCommand
                     target.getInventory()
                             .getItem(slot);
 
-            if (relicManager.isRelicItem(item)) {
+            if (item != null
+                    && relicManager.isRelicItem(item)) {
 
                 target.getInventory()
                         .setItem(slot, null);
             }
         }
 
+        // Save the new Relic.
         relicManager.setRelic(
                 target.getUniqueId(),
-                relic
+                newRelic
         );
 
-        ItemStack item =
-                relicManager.createRelicItem(
-                        relic
+        // Clear old ability state.
+        OblivionRelics plugin =
+                OblivionRelics.getPlugin(
+                        OblivionRelics.class
                 );
 
-        if (item != null) {
+        if (plugin != null) {
+
+            plugin.getRelicAbilityEngine()
+                    .clearPlayerState(
+                            target.getUniqueId()
+                    );
+        }
+
+        // Give the new Relic item.
+        ItemStack relicItem =
+                relicManager.createRelicItem(
+                        newRelic
+                );
+
+        if (relicItem != null) {
 
             target.getInventory()
-                    .addItem(item);
+                    .addItem(relicItem);
         }
 
         sender.sendMessage(
                 ChatColor.GREEN
                         + "Gave "
-                        + relic.getDisplayName()
+                        + newRelic.getDisplayName()
                         + " to "
                         + target.getName()
                         + "."
         );
 
+        target.sendMessage("");
+
+        target.sendMessage(
+                ChatColor.DARK_GRAY
+                        + "━━━━━━━━━━━━━━━━━━━━"
+        );
+
         target.sendMessage(
                 ChatColor.AQUA
+                        + ChatColor.BOLD.toString()
+                        + "       RELIC UPDATED"
+        );
+
+        target.sendMessage("");
+
+        target.sendMessage(
+                ChatColor.GRAY
                         + "Your Relic is now "
-                        + ChatColor.BOLD
-                        + relic.getDisplayName()
                         + ChatColor.AQUA
-                        + "."
+                        + ChatColor.BOLD.toString()
+                        + newRelic.getDisplayName()
+        );
+
+        target.sendMessage(
+                ChatColor.GRAY
+                        + "Hold the Relic in your main hand "
+                        + "to use its abilities."
+        );
+
+        target.sendMessage(
+                ChatColor.GRAY
+                        + "Use "
+                        + ChatColor.AQUA
+                        + "/relicinfo"
+                        + ChatColor.GRAY
+                        + " to view its abilities."
+        );
+
+        target.sendMessage(
+                ChatColor.DARK_GRAY
+                        + "━━━━━━━━━━━━━━━━━━━━"
         );
 
         return true;
     }
 
-    private String joinRelics() {
+    private String getRelicList() {
 
-        StringBuilder builder =
+        StringBuilder list =
                 new StringBuilder();
 
         for (RelicType relic :
                 RelicType.values()) {
 
-            if (builder.length() > 0) {
-                builder.append(", ");
+            if (list.length() > 0) {
+                list.append(", ");
             }
 
-            builder.append(
+            list.append(
                     relic.name().toLowerCase()
             );
         }
 
-        return builder.toString();
+        return list.toString();
     }
 }
